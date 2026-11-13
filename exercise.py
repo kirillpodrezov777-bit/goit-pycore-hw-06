@@ -12,7 +12,7 @@ class Name(Field):
 
 class Phone(Field):
     def __init__(self, value):
-        if len(value) != 10:
+        if not isinstance(value, str) or len(value) != 10 or not value.isdigit():
             raise ValueError("Phone number must contain exactly 10 digits.")
         super().__init__(value)
 
@@ -25,14 +25,18 @@ class Record:
         self.phones.append(Phone(phone))
 
     def remove_phone(self, phone):
-        self.phones = [p for p in self.phones if p.value != phone]
-    
-    def edit_phone(self, old_phone, new_phone):
+        phone_obj = self.find_phone(phone)
+        if not phone_obj:
+            raise ValueError("Phone number not found.")
+        self.phones.remove(phone_obj)
 
-        for i, p in enumerate(self.phones):
-            if p.value == old_phone:
-                self.phones[i] = Phone(new_phone)
-                break
+    def edit_phone(self, old_phone, new_phone):
+        phone_obj = self.find_phone(old_phone)
+        if not phone_obj:
+            raise ValueError("Phone number not found.")
+        index = self.phones.index(phone_obj)
+        self.phones[index] = Phone(new_phone)
+            
     
     def find_phone(self, phone):
         for p in self.phones:
